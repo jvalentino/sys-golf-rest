@@ -35,8 +35,13 @@ class SpringWebConfig implements WebMvcConfigurer {
 
         // requires for prometheus endpoint
         StringHttpMessageConverter converter = new StringHttpMessageConverter()
-        converter.setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_PLAIN))
+        converter.setSupportedMediaTypes(Arrays.asList(
+                MediaType.TEXT_PLAIN,
+                new MediaType('application', 'openmetrics-text')))
         converters.add(converter)
+
+        // No converter for [class java.lang.String] with preset Content-Type
+        // 'application/openmetrics-text;version=1.0.0;charset=utf-8']
     }
 
 }
