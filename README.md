@@ -1,6 +1,6 @@
-# System Foxtrot REST
+# System Foxtrot Golf
 
-This application serves as the restful services as part of the overall https://github.com/jvalentino/sys-foxtrot project. For details system document, please see that location.
+This application serves as the restful services as part of the overall https://github.com/jvalentino/sys-golf project. For details system document, please see that location.
 
 Prerequisites
 
@@ -10,8 +10,13 @@ Prerequisites
 - Docker Compose
 - pgadmin
 - Git
+- Minikube
 
 All of these you can get in one command using this installation automation (if you are on a Mac): https://github.com/jvalentino/setup-automation
+
+
+
+
 
 ## Database
 
@@ -52,3 +57,61 @@ Jacoco is used to enforce that line coverage is over 85%.
 Tests that end in "IntgTest" are used for integration testing via Spring Boot Test, otherwise they are unit tests.
 
 Every code commit triggers a Github Action pipeline that runs the entire build process.
+
+# Notes
+
+## Prometheus
+
+Getting Prometheus to work required the following steps:
+
+### build.gradle
+
+```groovy
+// monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+```
+
+### application.properties
+
+```properties
+management.endpoints.web.exposure.include=health, metrics, prometheus
+```
+
+### SpringWebConfig
+
+```groovy
+@Override
+    void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new MappingJackson2HttpMessageConverter(jsonMapper()))
+
+        // requires for prometheus endpoint
+        StringHttpMessageConverter converter = new StringHttpMessageConverter()
+        converter.setSupportedMediaTypes(Arrays.asList(MediaType.TEXT_PLAIN))
+        converters.add(converter)
+    }
+```
+
+### WebSecurityConfig
+
+```groovy
+@Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // https://stackoverflow.com/questions/32064000/uploading-file-returns-403-error-spring-mvc
+        http.cors().and().csrf().disable()
+
+        http
+                .authorizeRequests()
+                .antMatchers(
+                        '/resources/**',
+                        '/webjars/**',
+                        '/',
+                        '/custom-login',
+                        '/invalid',
+                        '/actuator/prometheus',
+                        '/actuator/health'
+                ).permitAll()
+                .anyRequest().authenticated()
+    }
+```
+

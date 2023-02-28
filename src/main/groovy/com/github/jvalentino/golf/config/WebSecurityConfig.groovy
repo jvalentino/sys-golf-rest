@@ -60,7 +60,9 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         '/webjars/**',
                         '/',
                         '/custom-login',
-                        '/invalid'
+                        '/invalid',
+                        '/actuator/prometheus',
+                        '/actuator/health'
                 ).permitAll()
                 .anyRequest().authenticated()
     }
