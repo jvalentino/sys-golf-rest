@@ -1,4 +1,4 @@
-# System Foxtrot Golf
+# System Golf REST
 
 This application serves as the restful services as part of the overall https://github.com/jvalentino/sys-golf project. For details system document, please see that location.
 
